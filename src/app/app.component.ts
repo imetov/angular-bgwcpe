@@ -1,13 +1,16 @@
-import { Component, OnInit } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { Component, OnInit, ViewChild } from "@angular/core";
+import { HttpClient } from "@angular/common/http";
+import { AgGridAngular } from "ag-grid-angular";
 
 @Component({
-  selector: 'app-root',
-  templateUrl: './app.component.html',
-  styleUrls: [ './app.component.scss' ]
+  selector: "app-root",
+  templateUrl: "./app.component.html",
+  styleUrls: ["./app.component.scss"]
 })
-export class AppComponent implements OnInit{
-  name = 'Angular Google';
+export class AppComponent implements OnInit {
+  @ViewChild("agGrid", { static: false }) agGrid: AgGridAngular;
+
+  name = "Angular Google";
 
   /*columnDefs = [
     { headerName: 'Make', field: 'make', sortable: true, filter: true },
@@ -20,18 +23,40 @@ export class AppComponent implements OnInit{
     { make: 'Porsche', model: 'Boxter', price: 72000 }
   ];*/
   columnDefs = [
-    { headerName: 'Author', field: 'commit.author.name', sortable: true, filter: true },
-    { headerName: 'Email', field: 'commit.author.email', sortable: true, filter: true },
-    { headerName: 'login', field: 'author.login', sortable: true, filter: true }];
+    {
+      headerName: "Author",
+      field: "commit.author.name",
+      sortable: true,
+      filter: true,
+      checkboxSelection: true
+    },
+    {
+      headerName: "Email",
+      field: "commit.author.email",
+      sortable: true,
+      filter: true
+    },
+    { headerName: "login", field: "author.login", sortable: true, filter: true }
+  ];
 
   rowData: any;
 
-  constructor(private http: HttpClient) {
-  }
+  constructor(private http: HttpClient) {}
 
   ngOnInit() {
-    this.rowData = this.http.get('https://api.github.com/repos/javascript-tutorial/en.javascript.info/commits');
+    this.rowData = this.http.get(
+      "https://api.github.com/repos/javascript-tutorial/en.javascript.info/commits"
+    );
     //https://api.myjson.com/bins/15psn9
     //https://api.github.com/repos/javascript-tutorial/en.javascript.info/commits
+  }
+
+  getSelectedRows() {
+    const selectedNodes = this.agGrid.api.getSelectedNodes();
+    const selectedData = selectedNodes.map(node => node.data);
+    const selectedDataStringPresentation = selectedData
+      .map(node => node.auther.login + " " + node.commit.auther.name)
+      .join(", ");
+    alert(`Selected nodes: ${selectedDataStringPresentation}`);
   }
 }
